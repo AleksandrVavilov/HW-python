@@ -1,10 +1,11 @@
 import pprint
 import os
+copy_phone_book=[]
 
 def work_with_phonebook():
     choice=show_menu()
     phone_book=read_txt('phon.txt')
-    while (choice!=8):
+    while (choice!=9):
         if choice==1:
             print_result(phone_book)
         elif choice==2:
@@ -41,19 +42,28 @@ def work_with_phonebook():
                 print("Запись не найдена!")
         elif choice==7:
             write_txt('phon.txt',phone_book)
-
+        
+        elif choice==8:
+            numstr = int(input("Введите номер записи для копирования: ")) - 1
+            print(f"Вы хотите скопировать запись {phone_book[numstr]}?")
+            result = input("Введите 'да' или 'нет': ")
+            if result == "да":
+                if phone_book[numstr] not in copy_phone_book:
+                    copy_record('phoncopy.txt',phone_book,numstr)
+                else:
+                    print("Запись была добавлена ранее!")
         choice=show_menu()
 
 def show_menu():
     print('''\nВыберите необходимое действие: 
 1. Отобразить весь справочник
 2. Найти абонента по фамилии
-3. Найти абонента по номеру телефона
 4. Изменить номер телефона абонента
 5. Добавить абонента в справочник
 6. Удалить запись по фамилии
 7. Сохранить справочник в текстовом формате
-8. Закончить работу\n''')
+8. Копировать запись по номеру
+9. Закончить работу\n''')
     choice = int(input("Позиция в меню: "))
     return choice
 
@@ -63,7 +73,7 @@ def read_txt(filename):
     fields = ['Фамилия', 'Имя', 'Телефон', 'Описание']
     with open(filename,'r',encoding='utf-8-sig') as phb:
         for line in phb:
-            line = line.replace('\n', '')
+            line = line.strip() #replace('\n', '')
             record = dict(zip(fields, line.split(',')))
 			#dict(( (фамилия,Иванов),(имя, Точка),(номер,8928) ))
             phone_book.append(record)
@@ -109,6 +119,15 @@ def add_user(phone_book,last_name,name,number,description):
                     'Описание': description}
     phone_book.append(card)
     return f'Запись {card} успешно добавлена'
+def copy_record(filename,phone_book,numstr):
+    copy_phone_book.append(phone_book[numstr])
+    with open(filename,'a',encoding='utf-8-sig') as phout:
+        for i in range(len([phone_book[numstr]])):
+            s=''
+            for v in [phone_book[numstr]][i].values():
+                s = s + v + ','
+            phout.write(f'{s[:-1]}\n')
+    print(f"Запись по адресу {os.path.abspath(filename)} прошла успешно!")
 
 work_with_phonebook()
 
